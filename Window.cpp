@@ -3,22 +3,19 @@
 
 const char* window_title = "GLFW Starter Project";
 Cube * cube;
-Skybox * skybox;
-Skybox * skyboxRight; 
-
-Skybox * skyboxMine; 
- 
-GLint shaderProgram;
-GLint skyShader; 
-
 Screen * leftscreen; 
+Screen * rightscreen; 
+
+//Model * factory; 
+GLint shaderProgram;
+GLuint frameShader; 
 
 // On some systems you need to change this to the absolute path
-#define VERTEX_SHADER_PATH "H:/Assignment3/Assignment2/Assignment2/shader_1.vert"
-#define FRAGMENT_SHADER_PATH "H:/Assignment3/Assignment2/Assignment2/shader_1.frag"
+#define VERTEX_SHADER_PATH "../shader_1.vert"
+#define FRAGMENT_SHADER_PATH "../shader_1.frag"
 
-#define SKYVERTEX_SHADER_PATH "H:/Assignment3/Assignment2/Assignment2/shader.vert"
-#define SKYFRAGMENT_SHADER_PATH "H:/Assignment3/Assignment2/Assignment2/shader.frag"
+#define VFRAME_SHADER_PATH "../fbshader.vert"
+#define FFRAME_SHADER_PATH "../fbshader.frag"
 
 // Default camera parameters
 glm::vec3 cam_pos(0.0f, 0.0f, 20.0f);		// e  | Position of camera
@@ -31,62 +28,32 @@ int Window::height;
 glm::mat4 Window::P;
 glm::mat4 Window::V;
 
-glm::mat4 Window::Vleft_eye; 
-glm::mat4 Window::Vright_eye;
-
-using namespace std;
+using namespace std; 
 
 void Window::initialize_objects()
 {
 	cube = new Cube();
-	skybox = new Skybox(); 
-	skyboxRight = new Skybox(); 
-	skyboxMine = new Skybox(); 
+	leftscreen = new Screen(	glm::vec3(0.0f, -3.0f, 0.0f),
+								glm::vec3(8.0f, -3.0f, -10.0f),
+								glm::vec3(0.0f, 7.0f, 0.0f) );
 
-	//leftscreen = new Screen(); 
+	rightscreen = new Screen( glm::vec3(8.0f, -3.0f, -10.0f),
+							  glm::vec3 (18.0f, -3.0f, 0.0f),
+							  glm::vec3(8.0f, 9.0f, -10.0f));
 
-	vector<const GLchar *> faces;
 
-	vector<const GLchar* > leftFaces; 
-	vector<const GLchar* > rightFaces;
-	vector <const GLchar*> mine; 
+	vector<const GLchar *> faces; 
 
 	for (int i = 0; i < 6; i++) {
-		faces.push_back("H:/Assignment3/Assignment2/textures/vr_test_pattern.ppm");
+		faces.push_back("H:/CSE167StarterCode2-master/textures/vr_test_pattern.ppm"); 
 	}
 
-	//load left eye
-	leftFaces.push_back("H:/Assignment3/Assignment2/textures/left-ppm/px.ppm"); 
-	leftFaces.push_back("H:/Assignment3/Assignment2/textures/left-ppm/nx.ppm"); 
-	leftFaces.push_back("H:/Assignment3/Assignment2/textures/left-ppm/py.ppm");
-	leftFaces.push_back("H:/Assignment3/Assignment2/textures/left-ppm/ny.ppm");
-	leftFaces.push_back("H:/Assignment3/Assignment2/textures/left-ppm/pz.ppm");
-	leftFaces.push_back("H:/Assignment3/Assignment2/textures/left-ppm/nz.ppm");
 
-	//load right eye 
-	rightFaces.push_back("H:/Assignment3/Assignment2/textures/right-ppm/px.ppm");
-	rightFaces.push_back("H:/Assignment3/Assignment2/textures/right-ppm/nx.ppm");
-	rightFaces.push_back("H:/Assignment3/Assignment2/textures/right-ppm/py.ppm");
-	rightFaces.push_back("H:/Assignment3/Assignment2/textures/right-ppm/ny.ppm");
-	rightFaces.push_back("H:/Assignment3/Assignment2/textures/right-ppm/pz.ppm");
-	rightFaces.push_back("H:/Assignment3/Assignment2/textures/right-ppm/nz.ppm");
-
-	//load personal box 
-	mine.push_back("H:/Assignment3/Assignment2/textures/360ppm/px.ppm");
-	mine.push_back("H:/Assignment3/Assignment2/textures/360ppm/nx.ppm");
-	mine.push_back("H:/Assignment3/Assignment2/textures/360ppm/py.ppm");
-	mine.push_back("H:/Assignment3/Assignment2/textures/360ppm/ny.ppm");
-	mine.push_back("H:/Assignment3/Assignment2/textures/360ppm/pz.ppm");
-	mine.push_back("H:/Assignment3/Assignment2/textures/360ppm/nz.ppm");
-
-	cube->loadCubemap(faces);
-	skybox->loadCubemap(leftFaces);
-	skyboxRight->loadCubemap(rightFaces); 
-	skyboxMine->loadCubemap(mine); 
+	cube->loadCubemap(faces); 
 
 	// Load the shader program. Make sure you have the correct filepath up top
 	shaderProgram = LoadShaders(VERTEX_SHADER_PATH, FRAGMENT_SHADER_PATH);
-	skyShader = LoadShaders(SKYVERTEX_SHADER_PATH, SKYFRAGMENT_SHADER_PATH); 
+	frameShader = LoadShaders(VFRAME_SHADER_PATH, FFRAME_SHADER_PATH);
 }
 
 // Treat this as a destructor function. Delete dynamically allocated memory here.
@@ -128,6 +95,7 @@ GLFWwindow* Window::create_window(int width, int height)
 		fprintf(stderr, "Either GLFW is not installed or your graphics card does not support modern OpenGL.\n");
 		glfwTerminate();
 		return NULL;
+		
 	}
 
 	// Make the context of the window
@@ -158,73 +126,26 @@ void Window::resize_callback(GLFWwindow* window, int width, int height)
 	}
 }
 
-void Window::idle_callback(float direction)
+void Window::idle_callback()
 {
 	// Call the update function the cube
-	cube->update(direction);
+//	cube->update();
 
+//	factory->Draw(); 
 }
 
-void Window::transCube(float direction, int mod) {
-
-	if (mod == 0) {
-		cube->translateX(direction); 
-	}
-	 if (mod == 1) {
-		cube->translateY(direction);
-	}
-
-	 if (mod == 2) {
-		 cube->translateZ(direction); 
-	 }
-}
-
-void Window::display_callback(int Xcount, int mod)
+void Window::display_callback(GLFWwindow* window)
 {
+	// Clear the color and depth buffers
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	//leftscreen->render(shaderProgram);
+	leftscreen->render(shaderProgram, frameShader);
+	//rightscreen->render(shaderProgram, frameShader); 
 
-	//BOTH
-	if (Xcount == 0) {
-
-		cube->draw(shaderProgram);
-		if (mod == 0) {
-			skybox->draw(skyShader);
-		}
-		if (mod == 1) {
-			skyboxRight->draw(skyShader);
-		}
-	}
-
-	//only cube
-	if (Xcount == 1) {
-		if (mod == 0) {
-			cube->draw(shaderProgram);
-		}
-		if (mod == 1) {
-
-			cube->draw(shaderProgram); 
-		}
-	}
-
-	//only box
-	if (Xcount == 2) {
-		if (mod == 0) {
-			skybox->draw(skyShader);
-		}
-		if (mod == 1) {
-			skyboxRight->draw(skyShader);
-		}
-	}
-	if (Xcount == 3) {
-		skyboxMine->draw(skyShader);
-	}
-
-
-}
-
-void Window::reset() {
-	cube->reset(); 
+	// Gets events, including input such as keyboard and mouse or window resizing
+	glfwPollEvents();
+	// Swap buffers
+	glfwSwapBuffers(window);
 }
 
 void Window::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)

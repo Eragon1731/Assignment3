@@ -1,48 +1,40 @@
 #pragma once
 
 #include <GL/glew.h>
-#include <GLFW/glfw3.h>
 
+#include <GLFW/glfw3.h>
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <vector>
-#include <stdlib.h>
-#include <stdio.h>
-#include <iostream>
+#include <iostream> 
+#include "Cube.h"
+#include "Window.h"
 
+class Screen {
 
-class Screen
-{
-public:
-	Screen();
+public: 
+
+	Screen(glm::vec3 pa, glm::vec3 pb, glm::vec3 pc);
 	~Screen(); 
-	void render(GLuint shaderProgram); 
-	GLuint generateAttachmentTexture(GLboolean depth, GLboolean stencil);
-	
-	
+
+	void render(GLuint shaderProgram, GLuint frameShader); 
+	void projection(glm::vec3 pa, glm::vec3 pb, glm::vec3 pc, glm::vec3 pe, float n, float f); 
+	GLuint generateAttachmentTexture(GLboolean depth, GLboolean stencil); 
+
 	glm::mat4 SWorld; 
-
-
+	GLuint quadVAO, quadVBO; 
 	GLuint textureColorbuffer; 
-	GLuint quadVAO, quadVBO;
 	GLuint framebuffer;
+	GLuint rbo;
+	GLuint textureID;
+	GLuint sProjection, sModelview;
 
+	static glm::mat4 Perspective; 
+	glm::mat4 SPerspective; 
 };
 
-//const GLfloat floorVertices[] = {
-//
-//	// Positions          // Texture Coords (note we set these higher than 1 that together with GL_REPEAT as texture wrapping mode will cause the floor texture to repeat)
-//	5.0f,  -0.5f,  5.0f,  2.0f, 0.0f,
-//	-5.0f, -0.5f,  5.0f,  0.0f, 0.0f,
-//	-5.0f, -0.5f, -5.0f,  0.0f, 2.0f,
-//
-//	5.0f,  -0.5f,  5.0f,  2.0f, 0.0f,
-//	-5.0f, -0.5f, -5.0f,  0.0f, 2.0f,
-//	5.0f,  -0.5f, -5.0f,  2.0f, 2.0f
-//};
-
-const GLfloat quadVertices[] = {   // Vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
-									   // Positions   // TexCoords
+const GLfloat screenVertices[] = {   // Vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
+									 // Positions   // TexCoords
 	-1.0f,  1.0f,  0.0f, 1.0f,
 	-1.0f, -1.0f,  0.0f, 0.0f,
 	1.0f, -1.0f,  1.0f, 0.0f,

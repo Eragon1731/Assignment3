@@ -1,9 +1,16 @@
 #include "Cube.h"
 #include "Window.h"
+#include "Screen.h"
+
+
+glm::mat4 Screen::Perspective; 
 
 Cube::Cube()
 {
 	toWorld = glm::mat4(1.0f);
+
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK); 
 
 	// Create array object and buffers. Remember to delete your buffers when the object is destroyed!
 	glGenVertexArrays(1, &VAO);
@@ -51,8 +58,9 @@ Cube::~Cube()
 }
 
 void Cube::draw(GLuint shaderProgram)
-{
-
+{ 	
+	
+	// Use the shader of programID
 	glUseProgram(shaderProgram);
 	// Calculate the combination of the model and view (camera inverse) matrices
 	glm::mat4 modelview = Window::V * toWorld;
@@ -62,55 +70,36 @@ void Cube::draw(GLuint shaderProgram)
 	uProjection = glGetUniformLocation(shaderProgram, "projection");
 	uModelview = glGetUniformLocation(shaderProgram, "modelview");
 	// Now send these values to the shader program
-	glUniformMatrix4fv(uProjection, 1, GL_FALSE, &Window::P[0][0]);
+	glUniformMatrix4fv(uProjection, 1, GL_FALSE, &Screen::Perspective[0][0]);
 	glUniformMatrix4fv(uModelview, 1, GL_FALSE, &modelview[0][0]);
 	// Now draw the cube. We simply need to bind the VAO associated with it.
 	glBindVertexArray(VAO);
 
-	glActiveTexture(GL_TEXTURE0); // diff 
-	glUniform1i(glGetUniformLocation(shaderProgram, "cube"), 0);//diff
+	glActiveTexture(GL_TEXTURE0);
+	glUniform1i(glGetUniformLocation(shaderProgram, "cube"), 0);
 
-	glBindTexture(GL_TEXTURE_CUBE_MAP, textureID); //diff
+	glBindTexture(GL_TEXTURE_CUBE_MAP, textureID); 
 
 	// Tell OpenGL to draw with triangles, using 36 indices, the type of the indices, and the offset to start from
 	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 	// Unbind the VAO when we're done so we don't accidentally draw extra stuff or tamper with its bound buffers
 	glBindVertexArray(0);
 
-	glDepthFunc(GL_LESS); // diff
+	glDepthFunc(GL_LESS);
 
 }
 
-void Cube::reset() {
-	toWorld = glm::mat4(1.0f); 
-}
-
-
-void Cube::update(float direction)
+void Cube::update()
 {
-	scale(direction);
+	spin(0.0001f);
 }
 
-void Cube::scale(float deg)
+void Cube::spin(float deg)
 {
 	// If you haven't figured it out from the last project, this is how you fix spin's behavior
-	toWorld = toWorld * glm::scale(glm::mat4(1.0f), glm::vec3(deg, deg, deg));
+	toWorld = toWorld * glm::rotate(glm::mat4(1.0f), 0.005f, glm::vec3(0.0f, 1.0f, 0.0f));
 }
 
-void Cube::translateX(float deg) {
-
-	toWorld = toWorld * glm::translate(glm::mat4(1.0f), glm::vec3(deg, 0.0f, 0.0f)); 
-}
-
-void Cube::translateY(float deg) {
-
-	toWorld = toWorld * glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, deg, 0.0f));
-}
-
-void Cube::translateZ(float deg) {
-
-	toWorld = toWorld * glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, deg));
-}
 
 unsigned char* Cube::loadPPM(const char* filename, int& width, int& height) {
 

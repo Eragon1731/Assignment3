@@ -1,109 +1,140 @@
 #include "Screen.h"
- 
- Screen::Screen() {
 
-	 SWorld = glm::mat4(1.0f);
-	
-	 //setup screen VAO
-	 glGenVertexArrays(1, &quadVAO);
-	 glGenBuffers(1, &quadVBO);
-	 glBindVertexArray(quadVAO);
-	 glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
-	 glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
-	 glEnableVertexAttribArray(0);
-	 glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (GLvoid*)0);
-	 glEnableVertexAttribArray(1);
-	 glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (GLvoid*)(2 * sizeof(GLfloat)));
-	 glBindVertexArray(0);
+Cube * trial; 
 
-	 // Create a color attachment texture
+Screen::Screen(glm::vec3 pa, glm::vec3 pb, glm::vec3 pc) {
+
+	SWorld = glm::mat4(1.0f); 
+	SWorld = SWorld * glm::scale(glm::mat4(1.0f), glm::vec3(0.05f,0.05f,0.05f)); 
+	trial = new Cube(); 
+	std::vector <const GLchar *> faces;
+
+	for (int i = 0; i < 6; i++) {
+		faces.push_back("H:/CSE167StarterCode2-master/textures/vr_test_pattern.ppm");
+	}
+
+	trial->loadCubemap(faces);
+
+	projection(pa ,pb ,pc , glm::vec3(0.0f, 0.0f, 100.0f), 0.1f, 1000.0f);
+
+	// Setup screen VAO
+	glGenVertexArrays(1, &quadVAO);
+	glGenBuffers(1, &quadVBO);
+	glBindVertexArray(quadVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(screenVertices), &screenVertices, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (GLvoid*)0);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (GLvoid*)(2 * sizeof(GLfloat)));
+	glBindVertexArray(0);
+	// Framebuffers
+
+	glGenFramebuffers(1, &framebuffer);
+	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+	// Create a color attachment texture
 	 textureColorbuffer = generateAttachmentTexture(false, false);
-	 glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColorbuffer, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColorbuffer, 0);
+	// Create a renderbuffer object for depth and stencil attachment (we won't be sampling these)
 
-	 //framebuffer
-	 glGenFramebuffers(1, &framebuffer);
-	 glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+	glGenRenderbuffers(1, &rbo);
+	glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+	//SAME SIZE 
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, 640, 480); // Use a single renderbuffer object for both a depth AND stencil buffer.
+	glBindRenderbuffer(GL_RENDERBUFFER, 0);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rbo); // Now actually attach it
+																								  // Now that we actually created the framebuffer and added all attachments we want to check if it is actually complete now
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	 // Create a renderbuffer object for depth and stencil attachment (we won't be sampling these)
-	 GLuint rbo;
-	 glGenRenderbuffers(1, &rbo);
-	 glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-	 glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, 800, 600); // Use a single renderbuffer object for both a depth AND stencil buffer.
-	 glBindRenderbuffer(GL_RENDERBUFFER, 0);
-	 glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo); // Now actually attach it
-																					
-	// Now that we actually created the framebuffer and added all attachments we want to check if it is actually complete now
-	 if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" <<std::endl;
-	 glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-	 //draw wire frame
-	 glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 }
 
- Screen::~Screen()
- {
-	 glDeleteVertexArrays(1, &quadVAO);
-	 glDeleteBuffers(1, &quadVBO);
+Screen::~Screen()
+{
+	// Delete previously generated buffers. Note that forgetting to do this can waste GPU memory in a 
+	// large project! This could crash the graphics driver due to memory leaks, or slow down application performance!
+	glDeleteVertexArrays(1, &quadVAO);
+	glDeleteBuffers(1, &quadVBO);
+	glDeleteFramebuffers(1, &framebuffer);
+}
 
-	 // Clean up
-	 glDeleteFramebuffers(1, &framebuffer);
- }
+void Screen::render(GLuint shaderProgram, GLuint frameShader) {
 
- void Screen::render(GLuint shaderProgram) 
- {
-	 /////////////////////////////////////////////////////
-	 // Bind to framebuffer and draw to color texture 
-	 // as we normally would.
-	 // //////////////////////////////////////////////////
-	 glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-	 // Clear all attached buffers        
-	// glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-	// glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // We're not using stencil buffer so why bother with clearing?
+	// First pass
+	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+	//glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // We're not using stencil buffer now
+	glEnable(GL_DEPTH_TEST);
 
-	 glEnable(GL_DEPTH_TEST);
+	trial->update(); 
+	trial->draw(shaderProgram);
 
-	//bind to default framebuffer again and draw the quad plane
-	 glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	 // Clear all relevant buffers
-	// glClearColor(1.0f, 1.0f, 1.0f, 1.0f); // Set clear color to white (not really necessery actually, since we won't be able to see behind the quad anyways)
-	// glClear(GL_COLOR_BUFFER_BIT);
-	 glDisable(GL_DEPTH_TEST); // We don't care about depth information when rendering a single quad
+	// Second pass
+	glBindFramebuffer(GL_FRAMEBUFFER, 0); // back to default
+	//glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+	//glClear(GL_COLOR_BUFFER_BIT);
 
-	 // Draw Screen
-	 glBindVertexArray(quadVAO);
-	 glBindTexture(GL_TEXTURE_2D, textureColorbuffer);	// Use the color attachment texture as the texture of the quad plane
-	 glDrawArrays(GL_TRIANGLES, 0, 6);
-	 glBindVertexArray(0);
+	glUseProgram(frameShader); 
+	glBindVertexArray(quadVAO);
+	glDisable(GL_DEPTH_TEST);
+	glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+	glBindVertexArray(0);
 
- }
+}
+
+//FOR NOW: manually calculate 
+void Screen::projection(glm::vec3 pa, glm::vec3 pb, glm::vec3 pc, glm::vec3 pe, float n, float f) {
+
+	glm::vec3 va, vb, vc; 
+	glm::vec3 vr, vu, vn; 
+
+	float l, r, b, t, d;
+
+	vr = pb - pa;
+	vu = pc - pa; 
+
+	vn = glm::normalize(glm::cross(glm::normalize(vr), glm::normalize(vu))); 
+	
+	va = pa - pe; 
+	vb = pb - pe;
+	vc = pc - pe;
+
+	d = -1.0f * glm::dot(va, vn); 
+
+	l = glm::dot(vr, va) * n / d;
+	r = glm::dot(vr, vb) * n / d;
+	b = glm::dot(vu, va) * n / d;
+	t = glm::dot(vu, vc) * n / d;
 
 
- // Generates a texture that is suited for attachments to a framebuffer
- GLuint Screen::generateAttachmentTexture(GLboolean depth, GLboolean stencil)
- {
+	glm::mat4 tempP = glm::mat4(1.0f); 
 
-	 GLuint textureID;
-	 // What enum to use?
-	 GLenum attachment_type;
-	 if (!depth && !stencil)
-		 attachment_type = GL_RGB;
-	 else if (depth && !stencil)
-		 attachment_type = GL_DEPTH_COMPONENT;
-	 else if (!depth && stencil)
-		 attachment_type = GL_STENCIL_INDEX;
+	tempP = glm::frustum(l,r,b,t,n,f); 
 
-	 //Generate texture ID and load texture data 
+	//set matrix
+	SPerspective[0].x = vr[0]; SPerspective[1].x = vr[1]; SPerspective[2].x = vr[2];
+	SPerspective[0].y = vu[0]; SPerspective[1].y = vu[1]; SPerspective[2].y = vu[2];
+	SPerspective[0].z = vn[0]; SPerspective[1].z = vn[1]; SPerspective[2].z = vn[2];
 
-	 glGenTextures(1, &textureID);
-	 glBindTexture(GL_TEXTURE_2D, textureID);
-	 if (!depth && !stencil)
-		 glTexImage2D(GL_TEXTURE_2D, 0, attachment_type, 800, 600, 0, attachment_type, GL_UNSIGNED_BYTE, NULL);
-	 else // Using both a stencil and depth test, needs special format arguments
-		 glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, 800, 600, 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, NULL);
-	 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	 glBindTexture(GL_TEXTURE_2D, 0);
 
-	 return textureID;
- }
+	Perspective = tempP * SPerspective * glm::translate(glm::mat4(1.0f), -pe);
+}
+
+// Generates a texture that is suited for attachments to a framebuffer
+GLuint Screen::generateAttachmentTexture(GLboolean depth, GLboolean stencil)
+{
+
+	glGenTextures(1, &textureID);
+	glBindTexture(GL_TEXTURE_2D, textureID);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 640, 480, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	return textureID;
+}

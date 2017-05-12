@@ -25,17 +25,11 @@ public:
 	glm::mat4 toWorld;
 	GLuint textureID;
 
-	void reset(); 
 	void draw(GLuint);
-	void update(float direction);
-	void scale(float);
-	
-	void translateX(float);
-	void translateY(float);
-	void translateZ(float);
-
-	void loadCubemap(std::vector<const GLchar *> faces);
-	unsigned char * loadPPM(const char * filename, int&width, int&height);
+	void update();
+	void spin(float);
+	void loadCubemap(std::vector<const GLchar *> faces); 
+	unsigned char * loadPPM(const char * filename, int&width, int&height); 
 
 	// These variables are needed for the shader program
 	GLuint VBO, VAO, EBO;
@@ -47,26 +41,26 @@ public:
 // This just looks nicer since it's easy to tell what coordinates/indices belong where.
 const GLfloat vertices[8][3] = {
 	// "Front" vertices
-	{ -5.0, -5.0,  5.0 },{ 5.0, -5.0,  5.0 },{ 5.0,  5.0,  5.0 },{ -5.0,  5.0,  5.0 },
+	{-5.0, -5.0,  5.0 }, { 5.0, -5.0,  5.0 }, { 5.0,  5.0,  5.0 }, {-5.0,  5.0,  5.0 },
 	// "Back" vertices
-	{ -5.0, -5.0, -5.0 },{ 5.0, -5.0, -5.0 },{ 5.0,  5.0, -5.0 },{ -5.0,  5.0, -5.0 }
+	{-5.0, -5.0, -5.0 }, { 5.0, -5.0, -5.0 }, { 5.0,  5.0, -5.0 }, {-5.0,  5.0, -5.0 }
 };
 
 // Note that GL_QUADS is deprecated in modern OpenGL (and removed from OSX systems).
 // This is why we need to draw each face as 2 triangles instead of 1 quadrilateral
 const GLuint indices[6][6] = {
 	// Front face
-	{ 0, 1, 2, 2, 3, 0 },
+	{0, 1, 2, 2, 3, 0},
 	// Top face
-	{ 1, 5, 6, 6, 2, 1 },
+	{1, 5, 6, 6, 2, 1},
 	// Back face
-	{ 7, 6, 5, 5, 4, 7 },
+	{7, 6, 5, 5, 4, 7},
 	// Bottom face
-	{ 4, 0, 3, 3, 7, 4 },
+	{4, 0, 3, 3, 7, 4},
 	// Left face
-	{ 4, 5, 1, 1, 0, 4 },
+	{4, 5, 1, 1, 0, 4},
 	// Right face
-	{ 3, 2, 6, 6, 7, 3 }
+	{3, 2, 6, 6, 7, 3}
 };
 
 #endif
