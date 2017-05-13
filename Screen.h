@@ -9,28 +9,28 @@
 #include <iostream> 
 #include "Cube.h"
 #include "Window.h"
+#include "Skybox.h"
 
 class Screen {
 
-public: 
+public:
 
 	Screen(glm::vec3 pa, glm::vec3 pb, glm::vec3 pc);
-	~Screen(); 
+	~Screen();
+	Cube * trial;
+	void render(GLuint shaderProgram, GLuint frameShader, GLuint skyShader);
+	void projection(glm::vec3 pa, glm::vec3 pb, glm::vec3 pc, glm::vec3 pe, float n, float f);
+	GLuint generateAttachmentTexture(GLboolean depth, GLboolean stencil);
 
-	void render(GLuint shaderProgram, GLuint frameShader); 
-	void projection(glm::vec3 pa, glm::vec3 pb, glm::vec3 pc, glm::vec3 pe, float n, float f); 
-	GLuint generateAttachmentTexture(GLboolean depth, GLboolean stencil); 
-
-	glm::mat4 SWorld; 
-	GLuint quadVAO, quadVBO; 
-	GLuint textureColorbuffer; 
+	glm::mat4 SWorld;
+	GLuint quadVAO, quadVBO;
+	GLuint textureColorbuffer;
 	GLuint framebuffer;
 	GLuint rbo;
 	GLuint textureID;
 	GLuint sProjection, sModelview;
 
-	static glm::mat4 Perspective; 
-	glm::mat4 SPerspective; 
+	static glm::mat4 Perspective;
 };
 
 const GLfloat screenVertices[] = {   // Vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
