@@ -58,8 +58,17 @@ void Cube::draw(GLuint shaderProgram)
 {
 
 	glUseProgram(shaderProgram);
+
+	glm::vec4 a = glm::vec4(1.0f, 0.0f, 0.0f, 0.0f);
+	glm::vec4 b = glm::vec4(0.0f, 1.0f, 0.0f, 0.0f);
+	glm::vec4 c = glm::vec4(0.0f, 0.0f, 1.0f, 0.0f);
+
+	glm::vec3 trans = glm::vec3(Window::V[3].x, Window::V[3].y, Window::V[3].z);
+
+	glm::mat4 tempHP = glm::mat4(a, b, c, glm::vec4(trans, 1.0f));
+
 	// Calculate the combination of the model and view (camera inverse) matrices
-	glm::mat4 modelview = Window::V * toWorld;
+	glm::mat4 modelview = tempHP * toWorld;
 	// We need to calcullate this because modern OpenGL does not keep track of any matrix other than the viewport (D)
 	// Consequently, we need to forward the projection, view, and model matrices to the shader programs
 	// Get the location of the uniform variables "projection" and "modelview"

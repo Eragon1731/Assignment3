@@ -34,6 +34,17 @@ public:
 
 	static glm::vec3 eyePose; 
 
+	static int Loffsetx; 
+	static int Loffsety;
+	static int Loffsetz;
+
+	static int Roffsetx;
+	static int Roffsety;
+	static int Roffsetz;
+
+
+	static int xPos;
+	static int yPos; 
 	//mine
 	static void reset(); 
 

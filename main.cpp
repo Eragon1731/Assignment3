@@ -470,7 +470,7 @@ private:
 
 	//mine
 	int counter = 0;
-	float offset = 0.0f;
+
 
 	bool button_A = false;
 	bool button_B = false;
@@ -482,7 +482,7 @@ private:
 
 
 public:
-
+	float offset = 0.0f;
 
 	glm::mat4 eyePoseL;
 	glm::mat4 eyePoseR;
@@ -510,6 +510,15 @@ public:
 			reset = _viewScaleDesc.HmdToEyeOffset[0];
 			Right_reset = _viewScaleDesc.HmdToEyeOffset[1];
 
+			Window::Loffsetx = reset.x; 
+			Window::Loffsety = reset.y;
+			Window::Loffsetz = reset.z; 
+
+			Window::Roffsetx = Right_reset.x;
+			Window::Roffsety = Right_reset.y;
+			Window::Roffsetz = Right_reset.z;
+
+			//////////
 			ovrFovPort & fov = _sceneLayer.Fov[eye] = _eyeRenderDescs[eye].Fov;
 			auto eyeSize = ovr_GetFovTextureSize(_session, eye, fov, 1.0f);
 			_sceneLayer.Viewport[eye].Size = eyeSize;
@@ -676,7 +685,20 @@ protected:
 		ovr::for_each_eye([&](ovrEyeType eye) {
 			const auto& vp = _sceneLayer.Viewport[eye];
 			glViewport(vp.Pos.x, vp.Pos.y, vp.Size.w, vp.Size.h);
+
+			//mine
+			Window::xPos = vp.Pos.x;
+			Window::yPos = vp.Pos.y; 
+
+		//	cerr << "vp w: " << vp.Size.w << endl;
+		//	cerr << "vp h: " << vp.Size.h << endl;
+
+		//	Window::width = vp.Size.w; 
+		//	Window::height = vp.Size.h; 
+
 			_sceneLayer.RenderPose[eye] = eyePoses[eye];
+			Window::eyePose = glm::vec3(eyePoses[eye].Position.x, eyePoses[eye].Position.y, eyePoses[eye].Position.z);
+			
 			//normal, update the renderscene
 			if (Bcounter == 0) {
 				tempHeadPose = ovr::toGlm(eyePoses[eye]);
@@ -896,7 +918,7 @@ protected:
 
 	void renderScene(const glm::mat4 & projection, const glm::mat4 & headPose, int i) override {
 
-		Window::eyePose = glm::vec3(headPose[3].x, headPose[3].y, headPose[3].z); 
+	//	Window::eyePose = glm::vec3(headPose[3].x, headPose[3].y, headPose[3].z); 
 
 
 		if (scale_down) {
@@ -930,7 +952,7 @@ protected:
 		if (left_click) {
 			Window::reset();
 		}
-
+		
 		Window::P = projection;
 		if (Xcounter == 1) {
 			std::cerr << "in debug" <<std:: endl; 
@@ -945,15 +967,15 @@ protected:
 			
 		}
 		else {
-			Window::V = glm::inverse(headPose) * glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -20.0f));
+			Window::V = glm::inverse(headPose);//* glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -20.0f));
 		}
 
 		if (i == 0) {
-			glm::mat4 tempHpose = glm::inverse(eyePoseL) * glm::translate(glm::mat4(1.0f), glm::vec3(-5.5f, 0.0f, -20.0f));
+			glm::mat4 tempHpose = glm::inverse(eyePoseL);
 			Window::display_callback(tempHpose, i);
 		}
 		if (i == 1) {
-			glm::mat4 tempHpose2 = glm::inverse(eyePoseR) * glm::translate(glm::mat4(1.0f), glm::vec3(5.5f, 0.0f, -20.0f));
+			glm::mat4 tempHpose2 = glm::inverse(eyePoseR);
 			Window::display_callback(tempHpose2, i);
 		}
 

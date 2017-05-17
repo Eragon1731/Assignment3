@@ -25,8 +25,19 @@ Screen * floorscreen;
 
 glm::mat4 Window::P;
 glm::mat4 Window::V;
+
 int Window::width;
 int Window::height; 
+int Window::xPos;
+int Window::yPos; 
+
+int Window::Loffsetx; 
+int Window::Loffsety;
+int Window::Loffsetz;
+
+int Window::Roffsetx;
+int Window::Roffsety;
+int Window::Roffsetz;
 
 glm::vec3 Window::eyePose;
 bool Window::debugStatus;
@@ -37,28 +48,33 @@ void Window::initialize_objects()
 
 	leftscreen = new Screen(glm::vec3(-1.2f, -1.2f, 0.0f),
 		glm::vec3(1.2f, -1.2f, 0.0f),
-		glm::vec3(-1.2f, 1.20f, 0.0f));
+		glm::vec3(-1.2f, 1.20f, 0.0f),
+		Window::eyePose);
 
 	leftscreen->SWorld = leftscreen->SWorld * glm::translate(glm::mat4(1.0f), glm::vec3(-0.845f, -0.0f, -2.2f));
 	leftscreen->SWorld = leftscreen->SWorld * glm::rotate(glm::mat4(1.0f), 0.785398f, glm::vec3(0.0f, 1.0f, 0.0f));
 
 	rightscreen = new Screen(glm::vec3(-1.2f, -1.2f, 0.0f),
 		glm::vec3(1.2f, -1.2f, 0.0f),
-		glm::vec3(-1.2f, 1.20f, 0.0f));
+		glm::vec3(-1.2f, 1.20f, 0.0f),
+		Window::eyePose);
 
 	rightscreen->SWorld = rightscreen->SWorld * glm::translate(glm::mat4(1.0f), glm::vec3(0.845f, 0.0f, -2.2f));
-	rightscreen->SWorld = rightscreen->SWorld * glm::rotate(glm::mat4(1.0f), -1.0f, glm::vec3(0.0f, 1.0f, 0.0f));
+	rightscreen->SWorld = rightscreen->SWorld * glm::rotate(glm::mat4(1.0f), -0.785398f, glm::vec3(0.0f, 1.0f, 0.0f));
 
 	
 	floorscreen = new Screen(glm::vec3(-1.2f, -1.2f, 0.0f),
 		glm::vec3(1.2f, -1.2f, 0.0f),
-		glm::vec3(-1.2f, 1.20f, 0.0f));
+		glm::vec3(-1.2f, 1.20f, 0.0f),
+		glm::vec3(0.0f, 10.0f, 20.0f));
+
+//	cerr << "window eye x: " << Window::eyePose.x << endl;
+//	cerr << "window eye y: " << Window::eyePose.y << endl;
+//	cerr << "window eye z: " << Window::eyePose.z << endl;
 
 	floorscreen->SWorld = floorscreen->SWorld * glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -1.2f, -1.355f));
 	floorscreen->SWorld = floorscreen->SWorld * glm::rotate(glm::mat4(1.0f), -1.5708f, glm::vec3(1.0f, 0.0f, 0.0f));
 	floorscreen->SWorld = floorscreen->SWorld * glm::rotate(glm::mat4(1.0f), 0.785398f +1.5708f, glm::vec3(0.0f, 0.0f, 1.0f));
-
-
 
 	// Load the shader program. Make sure you have the correct filepath up top
 	shaderProgram = LoadShaders(VERTEX_SHADER_PATH, FRAGMENT_SHADER_PATH);
@@ -84,7 +100,6 @@ void Window::idle_callback(float direction)
 	leftscreen->trial->update(direction);
 	rightscreen->trial->update(direction);
 	floorscreen->trial->update(direction);
-
 }
 
 void Window::transCube(float direction, int mode) {
@@ -108,19 +123,15 @@ void Window::transCube(float direction, int mode) {
 
 void Window::display_callback(glm::mat4 headPose, int mode)
 {
-		leftscreen->render(shaderProgram, fbshader, skyShader, mode);
+	leftscreen->render(shaderProgram, fbshader, skyShader, mode);
+	rightscreen->render(shaderProgram, fbshader, skyShader, mode);
+	floorscreen->render(shaderProgram, fbshader, skyShader, mode);
 	
-		//rightscreen->render(shaderProgram, fbshader, skyShader, mode);
-		floorscreen->render(shaderProgram, fbshader, skyShader, mode);
-		
-
-			if (debugStatus) {
-				leftscreen->debugMode(headPose , lineShader,  mode);
-				rightscreen->debugMode(headPose, lineShader,  mode);
-				floorscreen->debugMode(headPose, lineShader,  mode);
-			}
-
-
+	if (debugStatus) {
+		leftscreen->debugMode(headPose , lineShader,  mode);
+		rightscreen->debugMode(headPose, lineShader,  mode);
+		floorscreen->debugMode(headPose, lineShader,  mode);
+	}
 }
 
 void Window::reset() {

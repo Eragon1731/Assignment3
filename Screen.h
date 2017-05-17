@@ -15,11 +15,11 @@ class Screen {
 
 public:
 
-	Screen(glm::vec3 pa, glm::vec3 pb, glm::vec3 pc);
+	Screen(glm::vec3 pa, glm::vec3 pb, glm::vec3 pc, glm::vec3 pe);
 	~Screen();
 	Cube * trial;
 	void render(GLuint shaderProgram, GLuint frameShader, GLuint skyShader, int mode);
-	glm::mat4 projection(glm::vec3 pa, glm::vec3 pb, glm::vec3 pc, glm::vec3 pe, float n, float f);
+	glm::mat4 projection(glm::vec3 a, glm::vec3 b, glm::vec3 c, glm::vec3 e, float n, float f);
 	GLuint generateAttachmentTexture(GLboolean depth, GLboolean stencil);
 
 	GLuint quadVAO, quadVBO;
@@ -36,7 +36,7 @@ public:
 	glm::mat4 SWorld;
 	GLuint uProjection, uModelview;
 
-	glm::vec3 sa, sb, sc;
+	glm::vec3 sa, sb, sc, pos;
 	static glm::mat4 Projection;
 };
 
