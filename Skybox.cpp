@@ -64,9 +64,8 @@ void Skybox::draw(GLuint shaderProgram)
 
 	glm::mat4 tempHP = glm::mat4(a, b, c, glm::vec4(trans, 1.0f));
 
-
 	// Calculate the combination of the model and view (camera inverse) matrices
-	glm::mat4 modelview = tempHP * skyWorld;
+	glm::mat4 modelview = skyWorld;// Window::V * skyWorld;
 	// We need to calcullate this because modern OpenGL does not keep track of any matrix other than the viewport (D)
 	// Consequently, we need to forward the projection, view, and model matrices to the shader programs
 	// Get the location of the uniform variables "projection" and "modelview"
