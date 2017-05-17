@@ -449,8 +449,9 @@ public:
 
 class RiftApp : public GlfwApp, public RiftManagerApp {
 public:
-private:
 	GLuint _fbo{ 0 };
+private:
+
 	GLuint _depthBuffer{ 0 };
 	ovrTextureSwapChain _eyeTexture;
 
@@ -479,7 +480,12 @@ private:
 	bool B_pressed = false;
 	bool X_pressed = true;
 
+
 public:
+
+
+	glm::mat4 eyePoseL;
+	glm::mat4 eyePoseR;
 
 	RiftApp() {
 		using namespace ovr;
@@ -570,6 +576,9 @@ protected:
 		glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, _depthBuffer);
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 
+		Window::height = _renderTargetSize.y; 
+		Window::width = _renderTargetSize.x; 
+
 		ovrMirrorTextureDesc mirrorDesc;
 		memset(&mirrorDesc, 0, sizeof(mirrorDesc));
 		mirrorDesc.Format = OVR_FORMAT_R8G8B8A8_UNORM_SRGB;
@@ -659,13 +668,15 @@ protected:
 		GLuint curTexId;
 		ovr_GetTextureSwapChainBufferGL(_session, _eyeTexture, curIndex, &curTexId);
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, _fbo);
+		//mine
+		Window::tempfbo = _fbo; 
+
 		glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, curTexId, 0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		ovr::for_each_eye([&](ovrEyeType eye) {
 			const auto& vp = _sceneLayer.Viewport[eye];
 			glViewport(vp.Pos.x, vp.Pos.y, vp.Size.w, vp.Size.h);
 			_sceneLayer.RenderPose[eye] = eyePoses[eye];
-
 			//normal, update the renderscene
 			if (Bcounter == 0) {
 				tempHeadPose = ovr::toGlm(eyePoses[eye]);
@@ -674,51 +685,19 @@ protected:
 			if (B_pressed && Bcounter == 1) {
 				//empty
 			}
-			//the position does not update, always seems like looking from the same angle, rot matrix
-			if (B_pressed && Bcounter == 2) {
-				tempHeadPose = ovr::toGlm(eyePoses[eye]);
-				tempHeadPose = glm::mat4(glm::mat3(tempHeadPose));
-
-			}
-			//the orientation does not update: image is set in space, can walk up to and away from 
-			if (B_pressed && Bcounter == 3) {
-				tempHeadPose = ovr::toGlm(eyePoses[eye]);
-				vec4 a = vec4(1.0f, 0.0f, 0.0f, 0.0f);
-				vec4 b = vec4(0.0f, 1.0f, 0.0f, 0.0f);
-				vec4 c = vec4(0.0f, 0.0f, 1.0f, 0.0f);
-
-				vec3 trans = glm::vec3(tempHeadPose[3].x, tempHeadPose[3].y, tempHeadPose[3].z);
-
-				tempHeadPose = glm::mat4(a, b, c, glm::vec4(trans, 1.0f));
-			}
-
 
 			if (A_pressed || B_pressed || X_pressed) {
-				if (counter == 0) {
-					if (eye == ovrEye_Left) {
-						renderScene(_eyeProjections[eye], tempHeadPose, ovrEye_Left);
-					}
-					if (eye == ovrEye_Right) {
-						renderScene(_eyeProjections[eye], tempHeadPose, ovrEye_Right);
-					}
-
+				if (counter == 1) {
+					Window::debugStatus = true;
+					
 				}
-				else if (counter == 1) {
-					renderScene(_eyeProjections[eye], tempHeadPose, ovrEye_Left); //mono
+				if (eye == ovrEye_Left) {
+					eyePoseL = ovr::toGlm(eyePoses[eye]);
+					renderScene(_eyeProjections[eye], tempHeadPose, ovrEye_Left);
 				}
-
-				else if (counter == 2) {
-					if (eye == ovrEye_Left) {
-						renderScene(_eyeProjections[eye], tempHeadPose, eye);
-						//cerr << "left only" << endl; 
-					}
-				}
-
-				else if (counter == 3) {
-					if (eye == ovrEye_Right) {
-						renderScene(_eyeProjections[eye], tempHeadPose, eye);
-						//cerr << "Right only" << endl;
-					}
+				if (eye == ovrEye_Right) {
+					eyePoseR = ovr::toGlm(eyePoses[eye]);
+					renderScene(_eyeProjections[eye], tempHeadPose, ovrEye_Right);
 				}
 			}
 		});
@@ -752,7 +731,8 @@ protected:
 					button_A = true;
 					cerr << "A: " << counter << endl;
 					counter = counter + 1;
-					if (counter % 4 == 0) {
+					if (counter % 2 == 0) {
+						Window::debugStatus = false;
 						counter = 0;
 					}
 				}
@@ -768,11 +748,12 @@ protected:
 
 					Bcounter = Bcounter + 1;
 
-					if (Bcounter % 4 == 0)
+					if (Bcounter % 2 == 0)
 						Bcounter = 0;
 				}
 
 			}
+			//toggle button 
 			else if (inputState.Buttons & ovrButton_X) {
 				A_pressed = false;
 				B_pressed = false;
@@ -780,10 +761,9 @@ protected:
 
 				if (button_X == false) {
 					button_X = true;
-					cerr << "Xcount: " << Xcounter << endl;
 					Xcounter = Xcounter + 1;
 
-					if (Xcounter % 4 == 0)
+					if (Xcounter % 2 == 0)
 						Xcounter = 0;
 				}
 			}
@@ -916,6 +896,9 @@ protected:
 
 	void renderScene(const glm::mat4 & projection, const glm::mat4 & headPose, int i) override {
 
+		Window::eyePose = glm::vec3(headPose[3].x, headPose[3].y, headPose[3].z); 
+
+
 		if (scale_down) {
 			Window::idle_callback(0.999f);
 		}
@@ -949,19 +932,32 @@ protected:
 		}
 
 		Window::P = projection;
-		Window::V = glm::inverse(headPose) * glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -20.0f));
+		if (Xcounter == 1) {
+			std::cerr << "in debug" <<std:: endl; 
+			int frameIndex = 0;
+			Window::V = mat4(1.0f);
+			double displayMidpointSeconds = ovr_GetPredictedDisplayTime(_session, frameIndex);
+			ovrTrackingState trackstate = ovr_GetTrackingState(_session, displayMidpointSeconds, ovrTrue);
+			ovrPosef HandPoses[2];
+
+			HandPoses[ovrHand_Left] = trackstate.HandPoses[ovrHand_Left].ThePose;
+			Window::V[3] = glm::vec4(HandPoses[ovrHand_Left].Position.x, HandPoses[ovrHand_Left].Position.y, HandPoses[ovrHand_Left].Position.z, 1.0f); 
+			
+		}
+		else {
+			Window::V = glm::inverse(headPose) * glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -20.0f));
+		}
 
 		if (i == 0) {
-			Window::display_callback(Xcounter, i);
+			glm::mat4 tempHpose = glm::inverse(eyePoseL) * glm::translate(glm::mat4(1.0f), glm::vec3(-5.5f, 0.0f, -20.0f));
+			Window::display_callback(tempHpose, i);
 		}
 		if (i == 1) {
-			Window::display_callback(Xcounter, i);
+			glm::mat4 tempHpose2 = glm::inverse(eyePoseR) * glm::translate(glm::mat4(1.0f), glm::vec3(5.5f, 0.0f, -20.0f));
+			Window::display_callback(tempHpose2, i);
 		}
-		//	cerr << "render" << endl;
 
 	}
-
-
 };
 
 

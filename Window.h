@@ -16,8 +16,8 @@ public:
 
 	//static float down = 0.0f; 
 
-	//static int width;
-	//static int height;
+	static int width;
+	static int height;
 	static glm::mat4 P; // P for projection
 	static glm::mat4 V; // V for view
 	static void initialize_objects();
@@ -25,16 +25,21 @@ public:
 	//static GLFWwindow* create_window(int width, int height);
 	//static void resize_callback(GLFWwindow* window, int width, int height);
 	static void idle_callback(float direction);
-	static void display_callback(int Xcount, int mode);
+	static void display_callback(glm::mat4 headPose,int  mode);
 	static void transCube(float direction, int mode); 
 
 	static glm::mat4 Vleft_eye; 
 	static glm::mat4 Vright_eye; 
+	static bool debugStatus;
+
+	static glm::vec3 eyePose; 
 
 	//mine
 	static void reset(); 
 
-	static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+	static GLuint tempfbo; 
+
+	
 };
 
 #endif

@@ -55,15 +55,25 @@ void Skybox::draw(GLuint shaderProgram)
 	glUseProgram(shaderProgram); 
 	//glDepthMask(GL_FALSE); 
 
+	//find the position 
+	glm::vec4 a = glm::vec4(1.0f, 0.0f, 0.0f, 0.0f);
+	glm::vec4 b = glm::vec4(0.0f, 1.0f, 0.0f, 0.0f);
+	glm::vec4 c = glm::vec4(0.0f, 0.0f, 1.0f, 0.0f);
+
+	glm::vec3 trans = glm::vec3(Window::V[3].x, Window::V[3].y, Window::V[3].z);
+
+	glm::mat4 tempHP = glm::mat4(a, b, c, glm::vec4(trans, 1.0f));
+
+
 	// Calculate the combination of the model and view (camera inverse) matrices
-	glm::mat4 modelview = glm::mat4(glm::mat3(Window::V)) * skyWorld;
+	glm::mat4 modelview = tempHP * skyWorld;
 	// We need to calcullate this because modern OpenGL does not keep track of any matrix other than the viewport (D)
 	// Consequently, we need to forward the projection, view, and model matrices to the shader programs
 	// Get the location of the uniform variables "projection" and "modelview"
 	SProjection = glGetUniformLocation(shaderProgram, "skyprojection");
 	SModelview = glGetUniformLocation(shaderProgram, "skymodelview");
 	// Now send these values to the shader program
-	glUniformMatrix4fv(SProjection, 1, GL_FALSE, &Window::P[0][0]);
+	glUniformMatrix4fv(SProjection, 1, GL_FALSE, &Screen::Projection[0][0]);
 	glUniformMatrix4fv(SModelview, 1, GL_FALSE, &modelview[0][0]);
 	// Now draw the cube. We simply need to bind the VAO associated with it.
 	glBindVertexArray(skyVAO);
@@ -77,16 +87,12 @@ void Skybox::draw(GLuint shaderProgram)
 	//glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 	glDrawArrays(GL_TRIANGLES, 0,36);
 	
-	
 	// Unbind the VAO when we're done so we don't accidentally draw extra stuff or tamper with its bound buffers
 	glBindVertexArray(0);
 
 	glDepthFunc(GL_LESS); // diff
 
 }
-
-
-
 
 
 unsigned char* Skybox::loadPPM(const char* filename, int& width, int& height) {

@@ -8,8 +8,8 @@
 #include <vector>
 #include <iostream> 
 #include "Cube.h"
-#include "Window.h"
 #include "Skybox.h"
+#include "Window.h"
 
 class Screen {
 
@@ -18,28 +18,35 @@ public:
 	Screen(glm::vec3 pa, glm::vec3 pb, glm::vec3 pc);
 	~Screen();
 	Cube * trial;
-	void render(GLuint shaderProgram, GLuint frameShader, GLuint skyShader);
-	void projection(glm::vec3 pa, glm::vec3 pb, glm::vec3 pc, glm::vec3 pe, float n, float f);
+	void render(GLuint shaderProgram, GLuint frameShader, GLuint skyShader, int mode);
+	glm::mat4 projection(glm::vec3 pa, glm::vec3 pb, glm::vec3 pc, glm::vec3 pe, float n, float f);
 	GLuint generateAttachmentTexture(GLboolean depth, GLboolean stencil);
 
-	glm::mat4 SWorld;
 	GLuint quadVAO, quadVBO;
 	GLuint textureColorbuffer;
+	GLuint textureColorbufferR;
 	GLuint framebuffer;
+	GLuint framebufferR;
+
 	GLuint rbo;
 	GLuint textureID;
 	GLuint sProjection, sModelview;
+	void debugMode(glm::mat4 headPose, GLint shaderProgram, int mode );
 
-	static glm::mat4 Perspective;
+	glm::mat4 SWorld;
+	GLuint uProjection, uModelview;
+
+	glm::vec3 sa, sb, sc;
+	static glm::mat4 Projection;
 };
 
 const GLfloat screenVertices[] = {   // Vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
 									 // Positions   // TexCoords
-	-1.0f,  1.0f,  0.0f, 1.0f,
-	-1.0f, -1.0f,  0.0f, 0.0f,
-	1.0f, -1.0f,  1.0f, 0.0f,
+	-1.2f,  1.2f,  0.0f, 1.0f,
+	-1.2f, -1.2f,  0.0f, 0.0f,
+	1.2f, -1.2f,  1.0f, 0.0f,
 
-	-1.0f,  1.0f,  0.0f, 1.0f,
-	1.0f, -1.0f,  1.0f, 0.0f,
-	1.0f,  1.0f,  1.0f, 1.0f
+	-1.2f,  1.2f,  0.0f, 1.0f,
+	1.2f, -1.2f,  1.0f, 0.0f,
+	1.2f,  1.2f,  1.0f, 1.0f
 };

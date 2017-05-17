@@ -2,12 +2,12 @@
 
 
 in vec3 TexCoords;
-layout(location = 0) out vec3 color;
+out vec4 color;
 
 uniform samplerCube skycube;
 
 void main()
 {
-	color = vec3(texture (skycube, TexCoords));
+	color = vec4(1.f, 0.f, 0.f, 1.f);
 
 }

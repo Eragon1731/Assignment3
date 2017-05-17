@@ -2,7 +2,7 @@
 #include "Window.h"
 #include "Screen.h"
 
-glm::mat4 Screen::Perspective; 
+glm::mat4 Screen::Projection; 
 
 using namespace  std; 
 Cube::Cube()
@@ -69,7 +69,7 @@ void Cube::draw(GLuint shaderProgram)
 
 	//////////////////////////////
 	//NOTE:: changed the perspective to take in P calculated from Screen
-	glUniformMatrix4fv(uProjection, 1, GL_FALSE, &Window::P[0][0]);
+	glUniformMatrix4fv(uProjection, 1, GL_FALSE, &Screen::Projection[0][0]);
 	glUniformMatrix4fv(uModelview, 1, GL_FALSE, &modelview[0][0]);
 	
 	///////////////////////////
