@@ -5,6 +5,8 @@ Line::Line(glm::vec3 initial, glm::vec3 terminal)
 {
 	toWorld = glm::mat4(1.0f);
 
+	//toWorld = toWorld * glm::translate(glm::mat4(1.0f), initial); 
+
 	const GLfloat verticesl[2][3] = {
 		// "Front" vertices
 		{ initial.x, initial.y, initial.z},{ terminal.x, terminal.y, terminal.z }
@@ -56,8 +58,9 @@ Line::~Line()
 void Line::draw(GLint shaderProgram, glm::mat4 handWorld)
 {
 	glUseProgram(shaderProgram);
+
 	// Calculate the combination of the model and view (camera inverse) matrices
-	glm::mat4 modelview = handWorld;
+	glm::mat4 modelview = Window::V * toWorld;
 	// We need to calcullate this because modern OpenGL does not keep track of any matrix other than the viewport (D)
 	// Consequently, we need to forward the projection, view, and model matrices to the shader programs
 	// Get the location of the uniform variables "projection" and "modelview"

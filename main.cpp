@@ -585,8 +585,7 @@ protected:
 		glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, _depthBuffer);
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 
-		Window::height = _renderTargetSize.y; 
-		Window::width = _renderTargetSize.x; 
+
 
 		ovrMirrorTextureDesc mirrorDesc;
 		memset(&mirrorDesc, 0, sizeof(mirrorDesc));
@@ -687,14 +686,12 @@ protected:
 			glViewport(vp.Pos.x, vp.Pos.y, vp.Size.w, vp.Size.h);
 
 			//mine
-			Window::xPos = vp.Pos.x;
-			Window::yPos = vp.Pos.y; 
 
-		//	cerr << "vp w: " << vp.Size.w << endl;
-		//	cerr << "vp h: " << vp.Size.h << endl;
-
-		//	Window::width = vp.Size.w; 
-		//	Window::height = vp.Size.h; 
+			Window::xPosL = vp.Pos.x;
+			Window::yPosL = vp.Pos.y;
+	
+			Window::height = vp.Size.h; 
+			Window::width = vp.Size.w; 
 
 			_sceneLayer.RenderPose[eye] = eyePoses[eye];
 			Window::eyePose = glm::vec3(eyePoses[eye].Position.x, eyePoses[eye].Position.y, eyePoses[eye].Position.z);
@@ -918,9 +915,6 @@ protected:
 
 	void renderScene(const glm::mat4 & projection, const glm::mat4 & headPose, int i) override {
 
-	//	Window::eyePose = glm::vec3(headPose[3].x, headPose[3].y, headPose[3].z); 
-
-
 		if (scale_down) {
 			Window::idle_callback(0.999f);
 		}
@@ -966,17 +960,20 @@ protected:
 			Window::V[3] = glm::vec4(HandPoses[ovrHand_Left].Position.x, HandPoses[ovrHand_Left].Position.y, HandPoses[ovrHand_Left].Position.z, 1.0f); 
 			
 		}
-		else {
+
+
+		if(Xcounter == 0){
 			Window::V = glm::inverse(headPose);//* glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -20.0f));
 		}
 
 		if (i == 0) {
-			glm::mat4 tempHpose = glm::inverse(eyePoseL);
-			Window::display_callback(tempHpose, i);
+
+			Window::display_callback(headPose, i);
 		}
 		if (i == 1) {
-			glm::mat4 tempHpose2 = glm::inverse(eyePoseR);
-			Window::display_callback(tempHpose2, i);
+
+			Window::display_callback(headPose, i);
+			//std::cerr << "right display callback" << std::endl; 
 		}
 
 	}

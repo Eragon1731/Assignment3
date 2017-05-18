@@ -10,6 +10,8 @@
 #include "Screen.h"
 
 
+
+
 class Window
 {
 public:
@@ -22,6 +24,8 @@ public:
 	static glm::mat4 V; // V for view
 	static void initialize_objects();
 	static void clean_up();
+
+
 	//static GLFWwindow* create_window(int width, int height);
 	//static void resize_callback(GLFWwindow* window, int width, int height);
 	static void idle_callback(float direction);
@@ -34,17 +38,20 @@ public:
 
 	static glm::vec3 eyePose; 
 
-	static int Loffsetx; 
-	static int Loffsety;
-	static int Loffsetz;
+	static float Loffsetx; 
+	static float Loffsety;
+	static float Loffsetz;
 
-	static int Roffsetx;
-	static int Roffsety;
-	static int Roffsetz;
+	static float Roffsetx;
+	static float Roffsety;
+	static float Roffsetz;
 
 
-	static int xPos;
-	static int yPos; 
+	static int xPosL;
+	static int yPosL; 
+	static int xPosR;
+	static int yPosR;
+
 	//mine
 	static void reset(); 
 

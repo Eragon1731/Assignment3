@@ -25,6 +25,8 @@ public:
 	void loadCubemap(std::vector<const GLchar *> faces);
 	unsigned char * loadPPM(const char * filename, int&width, int&height);
 
+	glm::mat4 staticCam; 
+
 	// These variables are needed for the shader program
 	GLuint skyVBO, skyVAO, skyEBO;
 	GLuint SProjection, SModelview;
@@ -35,47 +37,47 @@ public:
 // This just looks nicer since it's easy to tell what coordinates/indices belong where.
 const GLfloat Skyvertices[] = {
 	// Positions
-	-100.0f,  100.0f, -100.0f,
-	-100.0f, -100.0f, -100.0f,
-	100.0f, -100.0f, -100.0f,
-	100.0f, -100.0f, -100.0f,
-	100.0f,  100.0f, -100.0f,
-	-100.0f,  100.0f, -100.0f,
+	-1.0f,  1.0f, -1.0f,
+	-1.0f, -1.0f, -1.0f,
+	1.0f, -1.0f, -1.0f,
+	1.0f, -1.0f, -1.0f,
+	1.0f,  1.0f, -1.0f,
+	-1.0f,  1.0f, -1.0f,
 
-	-100.0f, -100.0f,  100.0f,
-	-100.0f, -100.0f, -100.0f,
-	-100.0f,  100.0f, -100.0f,
-	-100.0f,  100.0f, -100.0f,
-	-100.0f,  100.0f,  100.0f,
-	-100.0f, -100.0f,  100.0f,
+	-1.0f, -1.0f,  1.0f,
+	-1.0f, -1.0f, -1.0f,
+	-1.0f,  1.0f, -1.0f,
+	-1.0f,  1.0f, -1.0f,
+	-1.0f,  1.0f,  1.0f,
+	-1.0f, -1.0f,  1.0f,
 
-	100.0f, -100.0f, -100.0f,
-	100.0f, -100.0f,  100.0f,
-	100.0f,  100.0f,  100.0f,
-	100.0f,  100.0f,  100.0f,
-	100.0f,  100.0f, -100.0f,
-	100.0f, -100.0f, -100.0f,
+	1.0f, -1.0f, -1.0f,
+	1.0f, -1.0f,  1.0f,
+	1.0f,  1.0f,  1.0f,
+	1.0f,  1.0f,  1.0f,
+	1.0f,  1.0f, -1.0f,
+	1.0f, -1.0f, -1.0f,
 
-	-100.0f, -100.0f,  100.0f,
-	-100.0f,  100.0f,  100.0f,
-	100.0f,  100.0f,  100.0f,
-	100.0f,  100.0f,  100.0f,
-	100.0f, -100.0f,  100.0f,
-	-100.0f, -100.0f,  100.0f,
+	-1.0f, -1.0f,  1.0f,
+	-1.0f,  1.0f,  1.0f,
+	1.0f,  1.0f,  1.0f,
+	1.0f,  1.0f,  1.0f,
+	1.0f, -1.0f,  1.0f,
+	-1.0f, -1.0f,  1.0f,
 
-	-100.0f,  100.0f, -100.0f,
-	100.0f,  100.0f, -100.0f,
-	100.0f,  100.0f,  100.0f,
-	100.0f,  100.0f,  100.0f,
-	-100.0f,  100.0f,  100.0f,
-	-100.0f,  100.0f, -100.0f,
+	-1.0f,  1.0f, -1.0f,
+	1.0f,  1.0f, -1.0f,
+	1.0f,  1.0f,  1.0f,
+	1.0f,  1.0f,  1.0f,
+	-1.0f,  1.0f,  1.0f,
+	-1.0f,  1.0f, -1.0f,
 
-	-100.0f, -100.0f, -100.0f,
-	-100.0f, -100.0f,  100.0f,
-	100.0f, -100.0f, -100.0f,
-	100.0f, -100.0f, -100.0f,
-	-100.0f, -100.0f,  100.0f,
-	100.0f, -100.0f,  100.0f
+	-1.0f, -1.0f, -1.0f,
+	-1.0f, -1.0f,  1.0f,
+	1.0f, -1.0f, -1.0f,
+	1.0f, -1.0f, -1.0f,
+	-1.0f, -1.0f,  1.0f,
+	1.0f, -1.0f,  1.0f
 };
 
 // Note that GL_QUADS is deprecated in modern OpenGL (and removed from OSX systems).

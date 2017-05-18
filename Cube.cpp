@@ -7,7 +7,14 @@ glm::mat4 Screen::Projection;
 using namespace  std; 
 Cube::Cube()
 {
+
+	glm::vec3 cam_pos(0.0f, 0.0f, 20.0f);		// e  | Position of camera
+	glm::vec3 cam_look_at(0.0f, 0.0f, 0.0f);	// d  | This is where the camera looks at
+	glm::vec3 cam_up(0.0f, 1.0f, 0.0f);			// up | What orientation "up" is
+
 	toWorld = glm::mat4(1.0f);
+
+	cubeCam = glm::lookAt(cam_pos, cam_look_at, cam_up);
 
 	// Create array object and buffers. Remember to delete your buffers when the object is destroyed!
 	glGenVertexArrays(1, &VAO);
@@ -68,7 +75,7 @@ void Cube::draw(GLuint shaderProgram)
 	glm::mat4 tempHP = glm::mat4(a, b, c, glm::vec4(trans, 1.0f));
 
 	// Calculate the combination of the model and view (camera inverse) matrices
-	glm::mat4 modelview = tempHP * toWorld;
+	glm::mat4 modelview = Window::V * toWorld;
 	// We need to calcullate this because modern OpenGL does not keep track of any matrix other than the viewport (D)
 	// Consequently, we need to forward the projection, view, and model matrices to the shader programs
 	// Get the location of the uniform variables "projection" and "modelview"

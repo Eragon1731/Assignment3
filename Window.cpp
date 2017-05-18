@@ -10,17 +10,17 @@ Screen * rightscreen;
 Screen * floorscreen; 
 
 // On some systems you need to change this to the absolute path
-#define VERTEX_SHADER_PATH "H:/Assignment3/Assignment2/Assignment2/shader_1.vert"
-#define FRAGMENT_SHADER_PATH "H:/Assignment3/Assignment2/Assignment2/shader_1.frag"
+#define VERTEX_SHADER_PATH "H:/MinimalVR/Minimal/shader_1.vert"
+#define FRAGMENT_SHADER_PATH "H:/MinimalVR/Minimal/shader_1.frag"
 
-#define SKYVERTEX_SHADER_PATH "H:/Assignment3/Assignment2/Assignment2/shader.vert"
-#define SKYFRAGMENT_SHADER_PATH "H:/Assignment3/Assignment2/Assignment2/shader.frag"
+#define SKYVERTEX_SHADER_PATH "H:/MinimalVR/Minimal/shader.vert"
+#define SKYFRAGMENT_SHADER_PATH "H:/MinimalVR/Minimal/shader.frag"
 
-#define SVERTEX_SHADER_PATH "H:/Assignment3/Assignment2/Assignment2/fbshader.vert"
-#define SFRAGMENT_SHADER_PATH "H:/Assignment3/Assignment2/Assignment2/fbshader.frag"
+#define SVERTEX_SHADER_PATH "H:/MinimalVR/Minimal/fbshader.vert"
+#define SFRAGMENT_SHADER_PATH "H:/MinimalVR/Minimal/fbshader.frag"
 
-#define LINEFRAG_SHADER_PATH "H:/Assignment3/Assignment2/Assignment2/tempShader.frag"
-#define LINEVERT_SHADER_PATH "H:/Assignment3/Assignment2/Assignment2/tempShader.vert"
+#define LINEFRAG_SHADER_PATH "H:/MinimalVR/Minimal/tempShader.frag"
+#define LINEVERT_SHADER_PATH "H:/MinimalVR/Minimal/tempShader.vert"
 
 
 glm::mat4 Window::P;
@@ -28,16 +28,20 @@ glm::mat4 Window::V;
 
 int Window::width;
 int Window::height; 
-int Window::xPos;
-int Window::yPos; 
 
-int Window::Loffsetx; 
-int Window::Loffsety;
-int Window::Loffsetz;
+ int Window::xPosL;
+ int Window::yPosL;
+ int Window::xPosR;
+ int Window::yPosR;
 
-int Window::Roffsetx;
-int Window::Roffsety;
-int Window::Roffsetz;
+
+float Window::Loffsetx;
+float Window::Loffsety;
+float Window::Loffsetz;
+
+float Window::Roffsetx;
+float Window::Roffsety;
+float Window::Roffsetz;
 
 glm::vec3 Window::eyePose;
 bool Window::debugStatus;
@@ -124,9 +128,9 @@ void Window::transCube(float direction, int mode) {
 void Window::display_callback(glm::mat4 headPose, int mode)
 {
 	leftscreen->render(shaderProgram, fbshader, skyShader, mode);
-	rightscreen->render(shaderProgram, fbshader, skyShader, mode);
-	floorscreen->render(shaderProgram, fbshader, skyShader, mode);
-	
+	//rightscreen->render(shaderProgram, fbshader, skyShader, mode);
+	//floorscreen->render(shaderProgram, fbshader, skyShader, mode);
+
 	if (debugStatus) {
 		leftscreen->debugMode(headPose , lineShader,  mode);
 		rightscreen->debugMode(headPose, lineShader,  mode);

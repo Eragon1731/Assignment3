@@ -37,6 +37,8 @@ public:
 	void loadCubemap(std::vector<const GLchar *> faces);
 	unsigned char * loadPPM(const char * filename, int&width, int&height);
 
+	glm::mat4 cubeCam; 
+
 	// These variables are needed for the shader program
 	GLuint VBO, VAO, EBO;
 	GLuint uProjection, uModelview;
