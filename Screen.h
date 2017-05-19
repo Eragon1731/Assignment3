@@ -37,16 +37,16 @@ public:
 	GLuint uProjection, uModelview;
 
 	glm::vec3 sa, sb, sc;
-	static glm::mat4 Projection;
+	glm::mat4 Projection;
 };
 
 const GLfloat screenVertices[] = {   // Vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
 									 // Positions   // TexCoords
-	-1.2f,  1.2f,  1.0f, 1.0f, //0,1 //
-	-1.2f, -1.2f,  1.0f, 0.0f, //0,0 //
-	1.2f, -1.2f,   0.0f, 0.0f, //1.0 //
+	-1.2f,  1.2f,  0.0f, 1.0f, // 1.0f, 0.0f, //0,1 //
+	-1.2f, -1.2f,  0.0f, 0.0f, //1.0f, 1.0f, //0,0 //
+	1.2f, -1.2f,   1.0f, 0.0f, //0.0f, 1.0f, //1.0 //
 
-	-1.2f,  1.2f,  1.0f, 1.0f, //0,1 //
-	1.2f, -1.2f,   0.0f, 0.0f, //1,0 
-	1.2f,  1.2f,   0.0f, 1.0f //1,1 //
+	-1.2f,  1.2f,  0.0f, 1.0f,//1.0f, 0.0f, //0,1 //
+	1.2f, -1.2f,   1.0f, 0.0f, //0.0f, 1.0f, //1,0 
+	1.2f,  1.2f,   1.0f, 1.0f //0.0f, 0.0f //1,1 //
 };

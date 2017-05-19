@@ -26,7 +26,7 @@ public:
 	GLuint textureID;
 
 	void reset(); 
-	void draw(GLuint);
+	void draw(GLuint, glm::mat4 Projection);
 	void update(float direction);
 	void scale(float);
 	

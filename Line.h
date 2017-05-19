@@ -25,7 +25,7 @@ public:
 	glm::mat4 toWorld;
 	GLuint uProjection, uModelview;
 
-	void draw(GLint, glm::mat4);
+	void draw(GLint, glm::mat4, int);
 	void update();
 	void spin(float);
 

@@ -8,10 +8,7 @@
 //#endif
 #include "shader.h"
 #include "Screen.h"
-
-
-
-
+#include "Skybox.h"
 class Window
 {
 public:

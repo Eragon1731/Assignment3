@@ -10,7 +10,7 @@ using namespace glm;
 
 Screen::Screen(glm::vec3 pa, glm::vec3 pb, glm::vec3 pc, glm::vec3 pe) {
 
-	SWorld = glm::mat4(1.0f) * glm::scale(glm::mat4(1.0f), glm::vec3(60.0f, 60.0f, 60.0f)); 
+	SWorld = glm::mat4(1.0f) *glm::scale(glm::mat4(1.0f), glm::vec3(30.0f, 30.0f, 30.0f));
 	
 	trial = new Cube(); 
 	leftSky = new Skybox(); 
@@ -21,28 +21,28 @@ Screen::Screen(glm::vec3 pa, glm::vec3 pb, glm::vec3 pc, glm::vec3 pe) {
 	vector <const GLchar*> rightFaces; 
 
 	for (int i = 0; i < 6; i++) {
-		faces.push_back("H:/MinimalVR/Minimal/vr_test_pattern.ppm");
+		faces.push_back("H:/Assignment3/Assignment2/textures/vr_test_pattern.ppm");
 	}
 
 	trial->loadCubemap(faces);
 
 	//load left eye
-	leftFaces.push_back("H:/MinimalVR/Minimal/left-ppm/px.ppm");
-	leftFaces.push_back("H:/MinimalVR/Minimal/left-ppm/nx.ppm");
-	leftFaces.push_back("H:/MinimalVR/Minimal/left-ppm/py.ppm");
-	leftFaces.push_back("H:/MinimalVR/Minimal/left-ppm/ny.ppm");
-	leftFaces.push_back("H:/MinimalVR/Minimal/left-ppm/pz.ppm");
-	leftFaces.push_back("H:/MinimalVR/Minimal/left-ppm/nz.ppm");
+	leftFaces.push_back("H:/Assignment3/Assignment2/textures/left-ppm/px.ppm");
+	leftFaces.push_back("H:/Assignment3/Assignment2/textures/left-ppm/nx.ppm");
+	leftFaces.push_back("H:/Assignment3/Assignment2/textures/left-ppm/py.ppm");
+	leftFaces.push_back("H:/Assignment3/Assignment2/textures/left-ppm/ny.ppm");
+	leftFaces.push_back("H:/Assignment3/Assignment2/textures/left-ppm/pz.ppm");
+	leftFaces.push_back("H:/Assignment3/Assignment2/textures/left-ppm/nz.ppm");
 
 	leftSky->loadCubemap(leftFaces); 
 
 	//load right eye
-	rightFaces.push_back("H:/MinimalVR/Minimal/right-ppm/px.ppm");
-	rightFaces.push_back("H:/MinimalVR/Minimal/right-ppm/nx.ppm");
-	rightFaces.push_back("H:/MinimalVR/Minimal/right-ppm/py.ppm");
-	rightFaces.push_back("H:/MinimalVR/Minimal/right-ppm/ny.ppm");
-	rightFaces.push_back("H:/MinimalVR/Minimal/right-ppm/pz.ppm");
-	rightFaces.push_back("H:/MinimalVR/Minimal/right-ppm/nz.ppm");
+	rightFaces.push_back("H:/Assignment3/Assignment2/textures/right-ppm/px.ppm");
+	rightFaces.push_back("H:/Assignment3/Assignment2/textures/right-ppm/nx.ppm");
+	rightFaces.push_back("H:/Assignment3/Assignment2/textures/right-ppm/py.ppm");
+	rightFaces.push_back("H:/Assignment3/Assignment2/textures/right-ppm/ny.ppm");
+	rightFaces.push_back("H:/Assignment3/Assignment2/textures/right-ppm/pz.ppm");
+	rightFaces.push_back("H:/Assignment3/Assignment2/textures/right-ppm/nz.ppm");
 
 	rightSky->loadCubemap(rightFaces); 
 
@@ -118,18 +118,19 @@ Screen::~Screen()
 	//glDeleteFramebuffers(1, &framebufferR);
 	delete(trial); 
 	delete(leftSky); 
+	delete(rightSky); 
 }
 
 void Screen::render(GLuint shaderProgram, GLuint frameShader, GLuint skyShader, int mode) {
 
-	glm::vec3 a = glm::vec3(SWorld * glm::vec4(sa, 1.f));
-	glm::vec3 b = glm::vec3(SWorld * glm::vec4(sb, 1.f));
-	glm::vec3 c = glm::vec3(SWorld * glm::vec4(sc, 1.f));
-	glm::vec3 e = glm::vec3(SWorld * Window::V[3]);
+	glm::vec3 a = glm::vec3(SWorld * glm::vec4(sa, 1.0f));
+	glm::vec3 b = glm::vec3(SWorld * glm::vec4(sb, 1.0f));
+	glm::vec3 c = glm::vec3(SWorld * glm::vec4(sc, 1.0f));
+	glm::vec3 e = glm::vec3(Window::V[3]);
 
 	//cerr << a.x << " " << a.y << "  " << a.z << endl;
 
-	Screen::Projection = projection(a, b, c, e, 0.1f, 100.0f);
+	Projection = projection(a, b, c, e, 0.01f, 10000.0f);
 
 	//cerr << "this: " << this << endl;
 	//cerr << "Sp x: " << Screen::Projection[3].x << endl;
@@ -143,16 +144,16 @@ void Screen::render(GLuint shaderProgram, GLuint frameShader, GLuint skyShader, 
 		glViewport(0, 0, 1024, 1024);
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	//	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColorbuffer, 0);
+		//glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColorbuffer, 0);
 		glEnable(GL_DEPTH_TEST);
 	
-		trial->draw(shaderProgram);
+		trial->draw(shaderProgram, Projection);
 		
 		if (mode == 0) {
-			leftSky->draw(skyShader);
+			leftSky->draw(skyShader, Projection);
 		}
 		if (mode == 1) {
-			rightSky->draw(skyShader); 
+			rightSky->draw(skyShader, Projection); 
 		}
 		glBindFramebuffer(GL_FRAMEBUFFER, Window::tempfbo); // back to default
 		glViewport(Window::xPosL, Window::yPosL, Window::width, Window::height);
@@ -185,7 +186,7 @@ glm::mat4 Screen::projection(glm::vec3 a, glm::vec3 b, glm::vec3 c, glm::vec3 e,
 
 	glm::vec3 va, vb, vc; 
 	glm::vec3 vr, vu, vn; 
-	glm::mat4 SPerspective = glm::mat4(1.0f); 
+	glm::mat4 MT = glm::mat4(1.0f); 
 
 	float l, r, b2, t, d;
 
@@ -203,21 +204,28 @@ glm::mat4 Screen::projection(glm::vec3 a, glm::vec3 b, glm::vec3 c, glm::vec3 e,
 	vb = b - e;
 	vc = c - e;
 
-	d = -1.0f * glm::dot(va, vn); 
+	d = -1.0f * glm::dot(vn, va); 
 
 	l = glm::dot(vr, va) * n / d;
 	r = glm::dot(vr, vb) * n / d;
 	b2 = glm::dot(vu, va) * n / d;
 	t = glm::dot(vu, vc) * n / d;
 
+	//cerr << "l: "<<l<<endl;
+	//cerr << "r: " << r << endl;
+	//cerr << "b2: " << b2 << endl;
+	//cerr << "t: " << t << endl;
+	
 	glm::mat4 tempP = glm::mat4(1.0f); 
-
 	tempP = glm::frustum(l,r,b2,t,n,f); 
 
-	SPerspective= glm::mat4( glm::vec4(vr, 0.0f), glm::vec4(vu,0.0f), glm::vec4(vn, 0.0f), glm::vec4(0.0f,0.0f,0.0f,1.0f)); 
-	SPerspective = glm::transpose(SPerspective);
-	glm::mat4 temp =  tempP * SPerspective * glm::translate(glm::mat4(1.0f), (-1.0f * e));
+	//mt[0].x = vr[0]; mt[1].x = vr[1]; mt[2].x = vr[2];
+	//mt[0].y = vu[0]; mt[1].y = vu[1]; mt[2].y = vu[2];
+	//mt[0].z = vn[0]; mt[1].z = vn[1]; mt[2].z = vn[2];
 
+	MT = glm::mat4(glm::vec4(vr, 0.0f), glm::vec4(vu, 0.0f), glm::vec4(vn, 0.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+	MT = glm::transpose(MT);
+	glm::mat4 temp = tempP * MT * glm::translate(glm::mat4(1.0f), (-1.0f * e));
 	return temp; 
 }
 
@@ -230,69 +238,74 @@ GLuint Screen::generateAttachmentTexture(GLboolean depth, GLboolean stencil)
 
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, 1024, 1024, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	//cerr << "to return: " << textureID << endl; 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glBindTexture(GL_TEXTURE_2D, 0);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	//glBindTexture(GL_TEXTURE_2D, 0);
 
 	return textureID;
 }
 
 
 void Screen::debugMode(glm::mat4 headPose, GLint shaderProgram, int mode) {
-
-	vec4 upsd2; 
 	glm::vec3 sd = sb - sa + sc;
-	glm::vec3 eyes = glm::vec3(headPose[3]);
-	
+	glm::vec3 eyes =  glm::vec3(Window::eyePose);
 	
 	if (mode == 0) {
-		eyes.x = eyes.x + Window::Loffsetx;
+		eyes.x = eyes.x + (Window::Loffsetx);
 
-		cerr << "x: " << eyes.x << endl;
-		cerr << "y: " << eyes.y << endl;
-		cerr << "z: " << eyes.z << endl;
+		//cerr << "x: " << eyes.x << endl;
+		//cerr << "y: " << eyes.y << endl;
+		//cerr << "z: " << eyes.z << endl;
+		//cerr << "left" << endl; 
 	}
 	if (mode == 1) {
-		eyes.x = eyes.x + Window::Roffsetx;
+		eyes.x = eyes.x + (Window::Roffsetx);
 		
-		cerr << "Rx: " << eyes.x << endl;
-		cerr << "Ry: " << eyes.y << endl;
-		cerr << "Rz: " << eyes.z << endl;
+		//cerr << "Rx: " << eyes.x << endl;
+		//cerr << "Ry: " << eyes.y << endl;
+		//cerr << "Rz: " << eyes.z << endl;
+		//cerr << "right" << endl; 
 	}
 
-	//cerr << "eyes " << eyes.x << " " << eyes.y << " " << eyes.z << endl;
-	glm::mat4 temp;
+	//Window::V[3] = glm::vec4(0.0f, 0.0f, 0.0f ,1.0f); 
+	eyes = vec3(Window::V * glm::vec4(eyes, 1.0f));
 
+
+	cerr << "x: " << eyes.x << endl;
+	cerr << "y: " << eyes.y << endl;
+	cerr << "z: " << eyes.z << endl;
+
+	//Top right corner
 	vec4 upsd = vec4(sd, 1.0f);
 	upsd = SWorld  * upsd;
-
 	Line * line1 = new Line(eyes, vec3(upsd));
-	line1->draw(shaderProgram, headPose);
+	line1->draw(shaderProgram, headPose, mode);
 	//cerr << "sd: " << sd.x << " " << sd.y << " " << sd.z << endl;
 
-	upsd2 = SWorld * upsd2 ;
-
+	//bottom left corner 
+	vec4 upsd2 = vec4(sa, 1.0f);
+	upsd2 = SWorld  * upsd2;
 	Line * line2 = new Line(eyes, vec3(upsd2));
-	line2->draw(shaderProgram, headPose);
-	//cerr << "sa: " << sa.x << " " << sa.y << " " << sa.z << endl;
+	line2->draw(shaderProgram, headPose, mode);
+	//cerr << "sa: " << upsd2.x << " " << upsd2.y << " " << upsd2.z << endl;
 
+	//top left corner 
 	vec4 upsd3 = vec4(sc, 1.0f);
 	upsd3 = SWorld * upsd3;
-
 	Line * line3 = new Line(eyes, vec3(upsd3));
-	line3->draw(shaderProgram, headPose);
+	line3->draw(shaderProgram, headPose, mode);
 	//cerr << "sc: " << sc.x << " " << sc.y << " " << sc.z << endl;
 
+	//bottom right corner 
 	vec4 upsd4 = vec4(sb, 1.0f);
 	upsd4 = SWorld * upsd4 ;
-
-	Line *line4 = new Line(eyes, upsd4);
-	line4->draw(shaderProgram, headPose);
+	Line *line4 = new Line(eyes, vec3(upsd4));
+	line4->draw(shaderProgram, headPose, mode);
 	//cerr << "sb: " << sb.x << " " << sb.y << " " << sb.z << endl;
 
 }

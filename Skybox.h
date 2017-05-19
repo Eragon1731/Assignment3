@@ -21,7 +21,7 @@ public:
 	glm::mat4 skyWorld;
 	GLuint skytextureID;
 
-	void draw(GLuint);
+	void draw(GLuint, glm::mat4 Projection);
 	void loadCubemap(std::vector<const GLchar *> faces);
 	unsigned char * loadPPM(const char * filename, int&width, int&height);
 

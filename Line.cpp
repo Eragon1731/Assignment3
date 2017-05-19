@@ -55,9 +55,16 @@ Line::~Line()
 	glDeleteBuffers(1, &VBO);
 }
 
-void Line::draw(GLint shaderProgram, glm::mat4 handWorld)
+void Line::draw(GLint shaderProgram, glm::mat4 handWorld, int mode)
 {
 	glUseProgram(shaderProgram);
+
+	glm::vec3 color(0.0f, 1.0f, 0.0f);
+
+	if (mode) {
+		color = glm::vec3(1.0f, 0.0f, 1.0f);
+	}
+
 
 	// Calculate the combination of the model and view (camera inverse) matrices
 	glm::mat4 modelview = Window::V * toWorld;
@@ -66,9 +73,12 @@ void Line::draw(GLint shaderProgram, glm::mat4 handWorld)
 	// Get the location of the uniform variables "projection" and "modelview"
 	uProjection = glGetUniformLocation(shaderProgram, "projection");
 	uModelview = glGetUniformLocation(shaderProgram, "modelview");
+	GLuint colorpos = glGetUniformLocation(shaderProgram, "color");
+
 	// Now send these values to the shader program
 	glUniformMatrix4fv(uProjection, 1, GL_FALSE, &Window::P[0][0]);
 	glUniformMatrix4fv(uModelview, 1, GL_FALSE, &modelview[0][0]);
+	glUniform3fv(colorpos, 1, &color[0]);
 
 	// Now draw the Line. We simply need to bind the VAO associated with it.
 	glBindVertexArray(VAO);

@@ -1,13 +1,13 @@
 #version 330 core
 
 
-in vec3 TexCoords;
+in vec3 colorval;
 out vec4 color;
 
 uniform samplerCube skycube;
 
 void main()
 {
-	color = vec4(1.f, 0.f, 0.f, 1.f);
+	color = vec4(colorval, 1.f);
 
 }
