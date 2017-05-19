@@ -273,7 +273,7 @@ void Screen::debugMode(glm::mat4 headPose, GLint shaderProgram, int mode) {
 	}
 
 	//Window::V[3] = glm::vec4(0.0f, 0.0f, 0.0f ,1.0f); 
-	eyes = vec3(Window::V * glm::vec4(eyes, 1.0f));
+	//eyes = vec3(Window::V * glm::vec4(eyes, 1.0f));
 
 
 	cerr << "x: " << eyes.x << endl;

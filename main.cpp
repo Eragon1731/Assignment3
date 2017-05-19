@@ -950,16 +950,20 @@ protected:
 		Window::P = projection;
 
 		if (Xcounter == 1) {
-		//	std::cerr << "in debug" <<std:: endl; 
+			//	std::cerr << "in debug" <<std:: endl; 
+			//Window::V = glm::inverse(headPose);
+
+
 			int frameIndex = 0;
-			Window::V = mat4(1.0f);
+
 			double displayMidpointSeconds = ovr_GetPredictedDisplayTime(_session, frameIndex);
 			ovrTrackingState trackstate = ovr_GetTrackingState(_session, displayMidpointSeconds, ovrTrue);
 			ovrPosef HandPoses[2];
 
 			HandPoses[ovrHand_Left] = trackstate.HandPoses[ovrHand_Left].ThePose;
-			Window::V[3] = glm::vec4(-1.f * HandPoses[ovrHand_Left].Position.x, HandPoses[ovrHand_Left].Position.y, HandPoses[ovrHand_Left].Position.z, 1.0f); 
-			Window::V = glm::inverse(Window::V);
+			//Window::V[3] =  glm::vec4(HandPoses[ovrHand_Left].Position.x, HandPoses[ovrHand_Left].Position.y, HandPoses[ovrHand_Left].Position.z, 1.0f);
+			Window::V = ovr::toGlm(HandPoses[ovrHand_Left]);
+			//Window::V[3] =  glm::vec4(HandPoses[ovrHand_Left].Position.x, HandPoses[ovrHand_Left].Position.y, HandPoses[ovrHand_Left].Position.z, 1.0f);
 		}
 
 
